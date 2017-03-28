@@ -190,8 +190,11 @@ function step() {//функция для шага
         cos.push(angle);
     }
 
+    console.log(cos);
     var maxCos = 0;
-    for(var i = 1; i < cos.length; i++) {
+    if(q.length == 9)
+        maxCos++;
+    for(var i = maxCos + 1; i < cos.length; i++) {
         if(cos[i] > cos[maxCos])
             maxCos = i;
     }
