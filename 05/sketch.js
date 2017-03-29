@@ -1,5 +1,5 @@
-X = 500
-Y = 500
+X = 1000;
+Y = 1000; 
 //
 // 2 laba
 //
@@ -33,6 +33,9 @@ function det(A)
     else return B[N-1][N-1];
 }
 
+function distance(a, b) {
+    return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+}
 
 function mult(a, b) {
     return a[0] * b[0] + a[1] * b[1];
@@ -75,146 +78,156 @@ function intersect(a, b) {
 // konec 2 labi
 //
 
+var center = new Point(X / 2, Y / 2, 0);
+var points = [];
 
-var figure= [];
 for(var i = 0; i < 10; i++) {
-    var p = [];
-    p.push(Math.random() * X);
-    p.push(Math.random() * Y);
-    figure.push(p);
+    var x = Math.random() * X;
+    var y = Math.random() * Y;
+    var r = Math.random() * Math.PI * 2;
+    var tempPoint = new Point(x, y, r);
+    if(distance(center, tempPoint) > 300)
+        i--;
+    else
+        points.push(tempPoint);
 }
 
-//refactor coordinates;
-var figureOne = [];
-for(var i = 0; i < figure.length; i++) {
-    figureOne.push([figure[i][0], figure[i][1]]);
-}
-
-for(var i = 0; i < figureOne.length; i++) {
-    figureOne[i][1] = Y - figureOne[i][1];
-}
-
-function drawFigure() {
-    for(var i = 0; i < figureOne.length; i++) {
-        ellipse(figureOne[i][0], figureOne[i][1], 5)
+function drawPoints() {
+    for(var i = 0; i < points.length; i++) {
+        ellipse(points[i].x, Y - points[i].y, 5)
     }
 }
 
 
-var y_min = 0;
-//Находим точку с минимальным y
-for(var i = 1; i < figure.length; i++) {
-    if(figure[i][1] < figure[y_min][1]) {
-        y_min = i;
-    }
-}
-//Находим углы точек
-var angles = [];
-var min_line = [1, 0];
-for(var i = 0; i < figure.length; i++) {
-    var angle = Math.acos(angleBetween(min_line, minus(figure[i], figure[y_min])))
-    angles.push(angle);
-}
-//Находим NaN - это есть наша точка с минимальным y(температура была 39.2 когда писал сие лабу)
-for(var i = 0; i < angles.length; i++) {
-    if(angles[i] < 10 || angles[i] > -10)
-        console.log("ok");
-    else {
-        var temp = angles[i];
-        angles[i] = angles[0];
-        angles[0] = temp;
-
-        var temp = figure[i];
-        figure[i] = figure[0];
-        figure[0] = temp;
-
-        var temp = figureOne[i];
-        figureOne[i] = figureOne[0];
-        figureOne[0] = temp;
-
-        break;
-    }
-
-}
-
-//Сортируем все массивы по углам
-for(var i = 1; i < angles.length - 1; i++) {
-    var MIN = i;
-    for(var j = i + 1; j < angles.length; j++) {
-        if(angles[j] < angles[MIN])
-            MIN = j;
-    }
-   
-    var temp = angles[i];
-    angles[i] = angles[MIN];
-    angles[MIN] = temp;
-
-    temp = figure[i];
-    figure[i] = figure[MIN];
-    figure[MIN] = temp;
-
-    temp = figureOne[i];
-    figureOne[i] = figureOne[MIN];
-    figureOne[MIN] = temp;
-}
 //Массивы с точками для новой фигуры
-var newFigure = [];
-newFigure[0] = figureOne[0];
-newFigure[1] = figureOne[1];
 
-var newFigureReal = [];
-newFigureReal[0] = figure[0];
-newFigureReal[1] = figure[1];
-
-var stepCount = 2;
-
-var q = [];
-
-for(var i = 0; i < figure.length; i++) {
-    q.push(figure[i]);
-}
-
-q.splice(1, 1);
+var figure = [];
 
 function step() {//функция для шага
-
-    if(stepCount > 9) { //если шаг последний
-        return 0;
+    var y_min = 0;
+    //Находим точку с минимальным y
+    for(var i = 1; i < points.length; i++) {
+        if(points[i].y < points[y_min].y) {
+            y_min = i;
+        }
     }
 
-    var cos = [];
-
-    var min_line = minus(newFigureReal[newFigureReal.length - 1], newFigureReal[newFigureReal.length - 2]);
-    for(var i = 0; i < q.length; i++) {
-        var angle = Math.acos(angleBetween(min_line, minus(newFigureReal[newFigureReal.length - 1], q[i])))
-        cos.push(angle);
+    //Находим углы точек
+    var angles = [];
+    var min_line = [1, 0];
+    for(var i = 0; i < points.length; i++) {
+        var angle = Math.acos(angleBetween(min_line, minus(points[i].getPoint(), points[y_min].getPoint())))
+        angles.push(angle);
     }
 
-    console.log(cos);
-    var maxCos = 0;
-    if(q.length == 9)
-        maxCos++;
-    for(var i = maxCos + 1; i < cos.length; i++) {
-        if(cos[i] > cos[maxCos])
-            maxCos = i;
+    //Находим NaN - это есть наша точка с минимальным y(температура была 39.2 когда писал сие лабу)
+    for(var i = 0; i < angles.length; i++) {
+        if(angles[i] < 10 || angles[i] > -10)
+            console.log("ok");
+        else {
+            var temp = angles[i];
+            angles[i] = angles[0];
+            angles[0] = temp;
+
+            var temp = points[i];
+            points[i] = points[0];
+            points[0] = temp;
+
+            break;
+        }
+
     }
 
-    newFigureReal.push(q[maxCos]);
-    newFigure.push([q[maxCos][0], Y - q[maxCos][1]]);
+    for(var i = 1; i < angles.length - 1; i++) {
+        var MIN = i;
+        for(var j = i + 1; j < angles.length; j++) {
+            if(angles[j] < angles[MIN])
+                MIN = j;
+        }
+       
+        var temp = angles[i];
+        angles[i] = angles[MIN];
+        angles[MIN] = temp;
 
-    q.splice(maxCos, 1)
-
-    if(maxCos == 0) {
-        stepCount = 100;
+        temp = points[i];
+        points[i] = points[MIN];
+        points[MIN] = temp;
     }
 
+
+    figure = [];
+    figure[0] = points[0];
+    figure[1] = points[1];
+
+    var q = [];
+
+    for(var i = 0; i < points.length; i++) {
+        q.push(points[i]);
+    }
+
+    q.splice(1, 1);
+
+
+    var maxCos = 1;
+    while(maxCos != 0){ 
+        var cos = [];
+
+        var min_line = minus(figure[figure.length - 1].getPoint(), figure[figure.length - 2].getPoint());
+        for(var i = 0; i < q.length; i++) {
+            var angle = Math.acos(angleBetween(min_line, minus(figure[figure.length - 1].getPoint(), q[i].getPoint())))
+            cos.push(angle);
+        }
+
+        maxCos = 0;
+        if(q.length == 9)
+            maxCos++;
+        for(var i = maxCos + 1; i < cos.length; i++) {
+            if(cos[i] > cos[maxCos])
+                maxCos = i;
+        }
+
+        figure.push(q[maxCos]);
+
+        q.splice(maxCos, 1)
+    }
 }
 
 function drawLines() {
-    for(var i = 0; i < newFigure.length - 1; i++) {
-        line(newFigure[i][0], newFigure[i][1], newFigure[i+1][0], newFigure[i+1][1]);
+    for(var i = 0; i < figure.length - 1; i++) {
+        line(figure[i].x, Y - figure[i].y, figure[i+1].x, Y - figure[i+1].y);
     } 
 }
+
+function movePoints() {
+    for(var i = 0; i < points.length; i++)
+        points[i].move();
+}
+
+
+function maxDistance() {
+    for(var i = 0; i < points.length; i++) {
+        var run = true;
+        var first = new Point(points[i].x, points[i].y, points[i].r);
+        first.move();
+        for(var j = 0; j < points.length; j++) {
+            var second = new Point(points[j].x, points[j].y, points[j].r);
+            second.move();
+            if(distance(first, second) > 600) {
+                points[i].x_speed = -points[i].x_speed;
+                points[i].y_speed = -points[i].y_speed;
+
+                points[j].x_speed = -points[j].x_speed;
+                points[j].y_speed = -points[j].y_speed;
+                break;
+                run = false;
+            }
+        
+        }
+        if(!run)
+            break;
+    }
+}
+
 
 //
 //
@@ -224,13 +237,14 @@ function drawLines() {
 
 function setup() {
     createCanvas(X, Y);
-    frameRate(1);
 }
 
 function draw() {
     background(51);
     stroke(255);
-    drawFigure();
+    maxDistance();
+    movePoints();
+    drawPoints();
     step();
     drawLines();
 }
