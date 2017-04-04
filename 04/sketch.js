@@ -115,7 +115,7 @@ for(var i = 0; i < figure.length; i++) {
     var angle = Math.acos(angleBetween(min_line, minus(figure[i], figure[y_min])))
     angles.push(angle);
 }
-//Находим NaN - это есть наша точка с минимальным y(температура была 39.2 когда писал сие лабу)
+//Находим NaN - это есть наша точка с минимальным y
 for(var i = 0; i < angles.length; i++) {
     if(angles[i] < 10 || angles[i] > -10)
         console.log("ok");

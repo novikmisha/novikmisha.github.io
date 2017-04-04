@@ -283,8 +283,8 @@ function draw() {
     createSheeps();
     drawFigure();
     drawInner();
+    checkOut();
     moveSheeps();
     drawSheeps();
     checkDead();
-    checkOut();
 }

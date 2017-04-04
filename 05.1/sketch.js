@@ -86,10 +86,7 @@ for(var i = 0; i < 10; i++) {
     var y = Math.random() * Y;
     var r = Math.random() * Math.PI * 2;
     var tempPoint = new Point(x, y, r);
-    if(distance(center, tempPoint) > 300)
-        i--;
-    else
-        points.push(tempPoint);
+    points.push(tempPoint);
 }
 
 function drawPoints() {
@@ -120,7 +117,7 @@ function step() {//функция для шага
         angles.push(angle);
     }
 
-    //Находим NaN - это есть наша точка с минимальным y(температура была 39.2 когда писал сие лабу)
+    //Находим NaN - это есть наша точка с минимальным y
     for(var i = 0; i < angles.length; i++) {
         if(angles[i] < 10 || angles[i] > -10)
             console.log("ok");
@@ -198,17 +195,6 @@ function drawLines() {
     } 
 }
 
-function movePoints() {
-    for(var i = 0; i < points.length; i++)
-        points[i].move();
-}
-
-
-function maxDistance() {
-
-}
-
-
 //
 //
 //
@@ -222,8 +208,6 @@ function setup() {
 function draw() {
     background(51);
     stroke(255);
-    maxDistance();
-    movePoints();
     drawPoints();
     step();
     drawLines();
