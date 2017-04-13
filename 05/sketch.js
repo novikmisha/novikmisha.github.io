@@ -194,8 +194,11 @@ function step() {//функция для шага
 
 function drawLines() {
     for(var i = 0; i < figure.length - 1; i++) {
-        line(figure[i].x, Y - figure[i].y, figure[i+1].x, Y - figure[i+1].y);
+        line(figure[i].x, Y - figure[i].y, figure[i + 1].x, Y - figure[i + 1].y);
     } 
+    stroke(255, 204, 100);
+    line(startPoint.x, Y - startPoint.y, endPoint.x, Y - endPoint.y);
+    stroke(0);
 }
 
 function movePoints() {
@@ -203,10 +206,84 @@ function movePoints() {
         points[i].move();
 }
 
+function triangle_area(first, second, third) {
+    let a = distance(first, second);
+    let b = distance(second, third);
+    let c = distance(first, third);
+    let p = (a + b + c) / 2;
 
-function maxDistance() {
-
+    return Math.sqrt(p * (p - a) * (p - b) * (p - c));
 }
+/*
+function maxDistance() {
+    let max_area = 0;
+    let n = figure.length - 1;
+    let i = 1;
+    let start;
+
+    while(triangle_area(figure[n - 1], figure[0], figure[i]) < triangle_area(figure[n - 1], figure[0], figure[i + 1])) {
+        i++;
+    }
+
+    for(let j = 0; j < n - 1; j++) {
+        while(triangle_area(figure[j], figure[j + 1], figure[i]) < triangle_area(figure[j], figure[j + 1], figure[i + 1])) {
+            i++;
+        }
+
+        if(i == n - 1) {
+            console.log("break")
+            break;
+        }
+
+    }
+}
+*/
+let startPoint;
+let endPoint;
+
+function findDiam() {
+	let n = figure.length - 1, i = 1, end, start, temp;
+	let resLength = 0;
+	while(Math.abs(triangle_area(figure[n - 1], figure[0], figure[i])) > Math.abs(triangle_area(figure[n - 1], figure[0], figure[i - 1]))) {
+		i++;
+	}
+
+	start = i - 1;
+	let j = 1;
+	while(start != n - 1) {
+		temp = start + 1;
+		
+		while(Math.abs(triangle_area(figure[j - 1], figure[j], figure[temp])) > Math.abs(triangle_area(figure[j - 1], figure[j], figure[temp - 1]))) {
+				temp++;
+				if(temp == n) {
+						break;
+				}
+		}
+		end = temp - 1;
+		
+		for(let k = start; k <= end; k++) {
+			let tempLength = distance(figure[k], figure[j - 1]);
+			if(tempLength > resLength) {
+				resLength = tempLength;
+                startPoint = figure[j - 1];
+                endPoint = figure[k];
+			}
+		}
+		start = end;
+		j++;			
+	}
+    if(resLength > 700) {
+        changePointsMovement();
+    }
+}
+
+function changePointsMovement() {
+    for(let i = 0; i < points.length - 1; i++) {
+        points[i].x_speed = -points[i].x_speed;
+        points[i].y_speed = -points[i].y_speed;
+    }
+}
+
 
 
 //
@@ -222,9 +299,9 @@ function setup() {
 function draw() {
     background(51);
     stroke(255);
-    maxDistance();
     movePoints();
     drawPoints();
     step();
+    findDiam();
     drawLines();
 }
