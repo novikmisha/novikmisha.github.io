@@ -115,7 +115,7 @@ let restoreArray = points.slice();
 function drawPoints() {
     fill(255, 255, 255);
     for(let i = 0; i < points.length; i++) {
-        ellipse(points[i].x, Y - points[i].y, 5);
+        ellipse(points[i].x, Y - points[i].y, 15);
     }
 }
 
