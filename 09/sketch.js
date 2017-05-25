@@ -145,7 +145,7 @@ function movePoints() {
     }
 }
 
-function closed_pair_bruteforce(points) {
+function closed_pair_bruteforce(points) { // узнает ближайшую пару точек брутфорсом (юзаем если массив точек из 3х элементов)
     let min_dist = distance(points[0], points[1]);
     let min_points = [points[0], points[1]];
         for(let i = 0; i < points.length; i++) {
@@ -159,22 +159,22 @@ function closed_pair_bruteforce(points) {
     return min_points;
 }
 
-function closed_pair_recursive(points_x, points_y) {
-    if(points_x.length <= 3) {
-        return closed_pair_bruteforce(points_x);
+function closed_pair_recursive(points_x, points_y) { // алгоритм собственно
+    if(points_x.length <= 3) { // если 3 точки
+        return closed_pair_bruteforce(points_x); // то узнаем расстояние брутфорсом
     } else {
         let min_dist;
         let min_points;
-        let mid = Math.floor(points_x.length / 2);
-        let points_x_l = points_x.slice(0, mid);
-        let points_x_r = points_x.slice(mid, points_x.length);
+        let mid = Math.floor(points_x.length / 2); // середина массива
+        let points_x_l = points_x.slice(0, mid); // делим массив, отсортированный по x-ам
+        let points_x_r = points_x.slice(mid, points_x.length); // на два массива, т.е. по центру
 
         let points_y_l = [];
         let points_y_r = [];
 
-        for(let i = 0; i < points_y.length; i++) {
-            if(points_y[i].x <= points_x_l[points_x_l.length - 1].x) {
-                points_y_l.push(points_y[i]);
+        for(let i = 0; i < points_y.length; i++) { // распихиваем точки из массива, отсортированного по y
+            if(points_y[i].x <= points_x_l[points_x_l.length - 1].x) { // в два массива
+                points_y_l.push(points_y[i]); // в соответсвии где лежит эта точка в массивах, разбитых по центру x
             } else {
                 points_y_r.push(points_y[i]);
             }
@@ -182,18 +182,18 @@ function closed_pair_recursive(points_x, points_y) {
 
         let l0, l1, r0, r1, d1, d2, result;
 
-        result = closed_pair_recursive(points_x_l, points_y_l);
-        l0 = result[0];
-        l1 = result[1];
+        result = closed_pair_recursive(points_x_l, points_y_l); // передаем левую половину
+        l0 = result[0]; // первая точка ближайшей пары
+        l1 = result[1]; // вторая точка
 
-        result = closed_pair_recursive(points_x_r, points_y_r);
+        result = closed_pair_recursive(points_x_r, points_y_r); // правую половину
         r0 = result[0];
         r1 = result[1];
 
-        d1 = distance(l0, l1);
-        d2 = distance(r0, r1);
+        d1 = distance(l0, l1);  // узнаем, в какой половине 
+        d2 = distance(r0, r1); // дистанция меньше
 
-        if(d1 < d2) {
+        if(d1 < d2) { // и запоминаем сие точки
             min_dist = d1;
             min_points = [l0, l1];
         } else {
@@ -201,15 +201,21 @@ function closed_pair_recursive(points_x, points_y) {
             min_points = [r0, r1];
         }
 
-        for(let i = 0; i < points_y.length; i++) {
-            for(let j = i + 1; j < Math.min(points_y.length, i + 7); j++) {
-                if(distance(points_y[i], points_y[j]) < min_dist) {
-                    min_dist = distance(points_y[i], points_y[j]);
+        for(let i = 0; i < points_y.length; i++) { // смотрим точки, которые находятся на краю разбиения по иксу
+            for(let j = i + 1; j < Math.min(points_y.length, i + 7); j++) { // для каждой точки из одной половины смотрим до 7 из другой
+                if(distance(points_y[i], points_y[j]) < min_dist) { // и считаем дистанцию
+                    min_dist = distance(points_y[i], points_y[j]); // ибо тут тоже может оказатся минимальная
                     min_points = [points_y[i], points_y[j]];
                 }
             }
         }
-
+        /*
+         * почему смотрим именно 7 точек
+         * уже не помню
+         * когда-то кидал владу со stackoverflow вопрос
+         * там было объяснение почему 7
+         * щяс лень гуглить
+         */
         return min_points;
     }
 }
@@ -220,11 +226,11 @@ function setup() {
 }
 
 function draw() {
-    movePoints();
-    let points_x = points.slice();
+    movePoints(); // двигаем точки
+    let points_x = points.slice(); // делаем копии массива точек
     let points_y = points.slice();
-
-    for(let i = 0; i < points_x.length - 1; i++) {
+ 
+    for(let i = 0; i < points_x.length - 1; i++) { // говнокодим для того чтоб отсортировать точки по x
         let MIN = i;
         for(let j = i + 1; j < points_x.length; j++) {
             if(points_x[j].x < points_x[MIN].x) {
@@ -237,7 +243,7 @@ function draw() {
 
     }
 
-    for(let i = 0; i < points_y.length - 1; i++) {
+    for(let i = 0; i < points_y.length - 1; i++) {  // второй по y
         let MIN = i;
         for(let j = i + 1; j < points_y.length; j++) {
             if(points_y[j].y < points_y[MIN].y) {
@@ -250,22 +256,16 @@ function draw() {
     }
 
 
-    let points1 = closed_pair_recursive(points_x, points_y);
-    let points2 = closed_pair_bruteforce(points);
-    if((points1[0] == points2[0] && points1[1] == points2[1]) || (points1[0] == points2[1] && points1[1] == points2[0])) {
-        if(distance(points1[0], points1[1]) < 15) {
-            points1[0].x_speed = - points1[0].x_speed;
-            points1[1].x_speed = - points1[1].x_speed;
-            points1[0].y_speed = - points1[0].y_speed;
-            points1[1].y_speed = - points1[1].y_speed;
-            console.log(distance(points1[0], points1[1]));
-        };
-    } else {
-        console.log(points1, points2);
+    let points1 = closed_pair_recursive(points_x, points_y);  // получаем ближайшую пару точек
+
+    if(distance(points1[0], points1[1]) < 15) { // если расстояние меньше чем радиус точки
+        points1[0].x_speed = - points1[0].x_speed; // то они полетят в обратнуюю сторону
+        points1[1].x_speed = - points1[1].x_speed;
+        points1[0].y_speed = - points1[0].y_speed;
+        points1[1].y_speed = - points1[1].y_speed;
     }
 
-
-    background(51);
+    background(51); // дальше отрисовка 
     stroke(255);
     drawPoints()
     line(points1[0].x, Y - points1[0].y, points1[1].x, Y - points1[1].y);
